@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Esora 的小遊戲 Prototype 入口頁" />
+  <title>Esora's Prototype Arcade</title>
+
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: #ffffff;
+      --text: #242424;
+      --muted: #6f6b65;
+      --line: rgba(36, 36, 36, 0.11);
+      --accent: #6d5dfc;
+      --accent-hover: #5848eb;
+      --shadow: 0 18px 45px rgba(42, 37, 29, 0.10);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family:
+        "Noto Sans TC",
+        "PingFang TC",
+        "Microsoft JhengHei",
+        system-ui,
+        sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(109, 93, 252, 0.13), transparent 30%),
+        radial-gradient(circle at 88% 16%, rgba(255, 178, 102, 0.16), transparent 28%),
+        var(--bg);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 72px 0 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 7vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.055em;
+    }
+
+    .intro {
+      max-width: 650px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.9;
+    }
+
+    .game-count {
+      min-width: 130px;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .game-count strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .game-count span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 15px 18px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.72);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-box:focus {
+      border-color: rgba(109, 93, 252, 0.55);
+      box-shadow: 0 0 0 4px rgba(109, 93, 252, 0.10);
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .game-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 335px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 55px rgba(42, 37, 29, 0.15);
+    }
+
+    .card-top {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 150px;
+      padding: 24px;
+      background:
+        linear-gradient(135deg, var(--card-color, #6d5dfc), rgba(255,255,255,0.12));
+    }
+
+    .game-icon {
+      width: 84px;
+      height: 84px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.12);
+      font-size: 2.8rem;
+    }
+
+    .game-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .status {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: white;
+      background: rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(8px);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .card-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 22px;
+    }
+
+    .game-title {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.35;
+    }
+
+    .game-description {
+      flex: 1;
+      margin: 12px 0 20px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.75;
+    }
+
+    .play-link {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 12px 16px;
+      border-radius: 13px;
+      color: white;
+      background: var(--accent);
+      font-weight: 800;
+      text-decoration: none;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .play-link:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .play-link.is-disabled {
+      cursor: not-allowed;
+      color: var(--muted);
+      background: #e6e3dc;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 50px 20px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 38px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .game-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page-shell {
+        width: min(100% - 22px, 1120px);
+        padding-top: 44px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .game-count {
+        width: 100%;
+      }
+
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Prototype Arcade</p>
+        <h1>小遊戲<br />實驗室</h1>
+        <p class="intro">
+          這裡整理了我製作中的小遊戲與功能原型。點擊卡片下方的按鈕，
+          就能直接前往遊戲頁面開始體驗。
+        </p>
+      </div>
+
+      <div class="game-count" aria-label="目前公開的遊戲數量">
+        <strong id="gameCount">0</strong>
+        <span>個可遊玩作品</span>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="搜尋遊戲">
+      <input
+        id="searchInput"
+        class="search-box"
+        type="search"
+        placeholder="搜尋遊戲名稱或說明……"
+        autocomplete="off"
+      />
+    </section>
+
+    <section id="gameGrid" class="game-grid" aria-live="polite"></section>
+
+    <footer>
+      © <span id="currentYear"></span> Esora · Prototype Collection
+    </footer>
+  </main>
+
+  <script>
+    /*
+      ============================================================
+      只需要修改這裡，就能新增、刪除或調整遊戲。
+      ============================================================
+
+      每一個遊戲的格式：
+
+      {
+        name: "遊戲名稱",
+        description: "簡短說明",
+        url: "https://你的遊戲網址",
+        icon: "🎮",                 // 可直接使用 Emoji
+        image: "",                 // 或填圖片路徑，例如 "images/game-icon.png"
+        status: "Prototype",
+        color: "#6d5dfc"
+      }
+
+      新增遊戲：
+      1. 複製一整組 { ... }
+      2. 貼到 games 陣列內
+      3. 記得在前一組結尾保留逗號
+    */
+
+    const games = [
+      {
+        name: "動畫猜歌主持台",
+        description: "支援自訂題庫、YouTube 片段、隊伍計分與結算功能的動畫猜歌工具。",
+        url: "https://king58235-commits.github.io/AnimeSongQuiz/",
+        icon: "🎵",
+        image: "",
+        status: "Prototype",
+        color: "#ec6f91"
+      },
+      {
+        name: "搶答器",
+        description: "用手機開，主持端開啟房間讓大家掃QR",
+        url: "https://king58235-commits.github.io/AnimeSongQuiz/",
+        icon: "🎵",
+        image: "",
+        status: "Prototype",
+        color: "#ec6f91"
+      },
+      {
+        name: "忍者夜行",
+        description: "有二段跳跟清圖必殺的橫版小恐龍。",
+        url: "https://king58235-commits.github.io/NightJumpTest/",
+        icon: "🐾",
+        image: "",
+        status: "開發中",
+        color: "#56a8c7"
+      },
+      {
+        name: "跳跳記數",
+        description: "點一下妹子會跳一下、記數+1，無意義的小廢廢遊戲。",
+        url: "https://king58235-commits.github.io/PixelClickGirl/",
+        icon: "🎮",
+        image: "",
+        status: "就這樣了",
+        color: "#8b76d8"
+      },
+      {
+        name: "快遞分檢",
+        description: "快遞分類，A、D可以鍵盤操作。",
+        url: " https://king58235-commits.github.io/SortingMaster/",
+        icon: "🎮",
+        image: "",
+        status: "就這樣了",
+        color: "#8b76d8"
+      },
+      {
+        name: "放板金塊GAME",
+        description: "沒放到就會失敗。",
+        url: " https://king58235-commits.github.io/GlodenYuGi/",
+        icon: "🎮",
+        image: "",
+        status: "就這樣了",
+        color: "#8b76d8"
+      },
+      {
+        name: "塔防",
+        description: "設置可以自定義難度。",
+        url: " https://king58235-commits.github.io/MaBT/",
+        icon: "🎮",
+        image: "",
+        status: "就這樣了",
+        color: "#8b76d8"
+      },
+    ];
+
+    const gameGrid = document.getElementById("gameGrid");
+    const searchInput = document.getElementById("searchInput");
+    const gameCount = document.getElementById("gameCount");
+
+    function createGameCard(game) {
+      const hasValidUrl = game.url && game.url !== "#";
+      const iconContent = game.image
+        ? `<img src="${escapeHtml(game.image)}" alt="" />`
+        : escapeHtml(game.icon || "🎮");
+
+      return `
+        <article class="game-card" style="--card-color: ${escapeHtml(game.color || "#6d5dfc")}">
+          <div class="card-top">
+            <span class="status">${escapeHtml(game.status || "Prototype")}</span>
+            <div class="game-icon" aria-hidden="true">${iconContent}</div>
+          </div>
+
+          <div class="card-body">
+            <h2 class="game-title">${escapeHtml(game.name)}</h2>
+            <p class="game-description">${escapeHtml(game.description)}</p>
+
+            <a
+              class="play-link ${hasValidUrl ? "" : "is-disabled"}"
+              href="${hasValidUrl ? escapeHtml(game.url) : "#"}"
+              ${hasValidUrl ? 'target="_blank" rel="noopener noreferrer"' : 'aria-disabled="true"'}
+            >
+              ${hasValidUrl ? "開始遊玩 ↗" : "尚未公開"}
+            </a>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderGames(keyword = "") {
+      const normalizedKeyword = keyword.trim().toLowerCase();
+
+      const filteredGames = games.filter((game) => {
+        const searchableText = `${game.name} ${game.description} ${game.status}`.toLowerCase();
+        return searchableText.includes(normalizedKeyword);
+      });
+
+      gameCount.textContent = games.filter(
+        (game) => game.url && game.url !== "#"
+      ).length;
+
+      if (filteredGames.length === 0) {
+        gameGrid.innerHTML = `
+          <div class="empty-state">
+            找不到符合「${escapeHtml(keyword)}」的遊戲。
+          </div>
+        `;
+        return;
+      }
+
+      gameGrid.innerHTML = filteredGames.map(createGameCard).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    searchInput.addEventListener("input", (event) => {
+      renderGames(event.target.value);
+    });
+
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+    renderGames();
+  </script>
+</body>
+</html>
